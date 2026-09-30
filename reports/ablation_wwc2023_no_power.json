@@ -1,0 +1,25 @@
+{
+  "passes_known": 16022,
+  "passes_all": 47560,
+  "production_on_known": {
+    "brier": 0.1341,
+    "log_loss": 0.4181,
+    "roc_auc": 0.8576,
+    "mean_predicted": 0.734,
+    "observed_rate": 0.713
+  },
+  "no_power_on_known": {
+    "brier": 0.1334,
+    "log_loss": 0.4164,
+    "roc_auc": 0.858,
+    "mean_predicted": 0.7295,
+    "observed_rate": 0.713
+  },
+  "no_power_on_all": {
+    "brier": 0.1199,
+    "log_loss": 0.378,
+    "roc_auc": 0.8704,
+    "mean_predicted": 0.7573,
+    "observed_rate": 0.7523
+  }
+}

@@ -25,6 +25,7 @@ evaluation gate, API, tests, container, CI/CD to Google Cloud Run, and scheduled
 | Log loss | 0.3725 | **0.3470** |
 | Accuracy / MCC | 83.0 % / 0.49 | 83.7 % / 0.52 |
 | ROC AUC | 0.865 | 0.882 |
+| 5-fold grouped CV Brier | – | 0.117 ± 0.005 (the honest estimate for unseen matches) |
 
 **Key finding.** The thesis concluded that the models *overestimate pass difficulty*.
 The experiment in this pipeline shows a likely cause: oversampling with SMOTE shifts the base rate
@@ -36,6 +37,7 @@ Top players by xPass score (≥ 51 passes) match the thesis rankings: Griedge Mb
 Nicky Evrard, Laura De Neve, Elena Linari, Martina Rosucci (`reports/player_scores.csv`).
 
 ---
+
 
 ## Pipeline: every step and its output
 
@@ -168,7 +170,8 @@ tests/            feature, model-contract and API tests
 models/           versioned model artifacts + metadata.json (drift reference inside)
 reports/          evaluation, experiments, player scores, drift reports
 data/reference/   power index lookup (versioned reference data)
-docs/             BPMN process model
+docs/             BPMN process model, deployment guide
+scripts/          BPMN generator, ablation experiments
 .github/workflows CI/CD and weekly drift check
 ```
 
@@ -177,8 +180,9 @@ docs/             BPMN process model
 1. **Power index uses future information.** It is built from the FIFA ranking after the tournament and
    from goals conceded over the whole tournament (as in the thesis). A point-in-time version would use the
    pre-tournament ranking and goals conceded up to the match.
-2. **Power index does not generalise** to teams outside Euro 2022 (drift report). Replace the lookup table
-   with a ranking-based feature available for all national teams.
+2. **Power index does not generalise** to teams outside Euro 2022 (drift report), and an ablation shows it adds
+   no signal (grouped-CV Brier 0.1165 without vs. 0.1167 with it). A model without it scores 100 % of World Cup 2023
+   passes with Brier 0.120. Next version: drop it or replace it with a point-in-time ranking.
 3. **Outplayed players is an optimistic upper bound**: 360 frames show only the broadcast view and
    opponents' positions at pass start (thesis section 3.1.1).
 4. Player scores are computed on all passes (in-sample), as in the thesis.

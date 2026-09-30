@@ -1,0 +1,44 @@
+{
+  "stratified_kfold": {
+    "brier": {
+      "mean": 0.1157,
+      "sd": 0.0019
+    },
+    "log_loss": {
+      "mean": 0.362,
+      "sd": 0.0043
+    },
+    "roc_auc": {
+      "mean": 0.8709,
+      "sd": 0.0043
+    }
+  },
+  "group_kfold": {
+    "brier": {
+      "mean": 0.1167,
+      "sd": 0.0047
+    },
+    "log_loss": {
+      "mean": 0.3635,
+      "sd": 0.012
+    },
+    "roc_auc": {
+      "mean": 0.869,
+      "sd": 0.0042
+    }
+  },
+  "group_kfold_no_power": {
+    "brier": {
+      "mean": 0.1165,
+      "sd": 0.005
+    },
+    "log_loss": {
+      "mean": 0.3644,
+      "sd": 0.0146
+    },
+    "roc_auc": {
+      "mean": 0.8692,
+      "sd": 0.0049
+    }
+  }
+}
