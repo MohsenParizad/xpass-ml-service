@@ -96,3 +96,12 @@ def predict(p: PassIn):
 def top_players(n: int = Query(10, ge=1, le=100)):
     df = pd.read_csv(SCORES_PATH).head(n)
     return {"model_version": META["model_version"], "players": df.round(4).to_dict("records")}
+
+
+from fastapi.responses import RedirectResponse
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    """Send visitors of the bare URL to the interactive API docs."""
+    return RedirectResponse(url="/docs")
