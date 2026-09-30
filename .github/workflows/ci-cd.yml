@@ -1,0 +1,68 @@
+# Step 13: CI/CD
+# On every push / pull request: install, test (incl. model contract + evaluation gate), build image.
+# On push to main only: push image to Artifact Registry and deploy a new Cloud Run revision.
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: europe-west3
+  SERVICE: xpass-api
+  REPOSITORY: xpass
+  IMAGE: europe-west3-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/xpass/xpass-api
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Unit, model and API tests (model test fails if the evaluation gate failed)
+        run: python -m pytest -q
+      - name: Build image (smoke test)
+        run: docker build -t xpass-api:ci .
+
+  deploy:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # needed for Workload Identity Federation (no JSON key stored in GitHub)
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push image to Artifact Registry
+        run: |
+          gcloud auth configure-docker europe-west3-docker.pkg.dev --quiet
+          docker build -t "$IMAGE:${{ github.sha }}" .
+          docker push "$IMAGE:${{ github.sha }}"
+
+      - name: Deploy new Cloud Run revision
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.IMAGE }}:${{ github.sha }}
+          flags: --allow-unauthenticated --max-instances=1 --memory=1Gi
+
+      - name: Smoke test the live service
+        run: |
+          URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --format 'value(status.url)')
+          curl -fsS "$URL/health"

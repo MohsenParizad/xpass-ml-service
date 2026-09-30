@@ -1,0 +1,81 @@
+{
+  "tag": "euro2025",
+  "model_version": "1.0.0",
+  "n_passes_scored": 19667,
+  "unknown_opponent_share": 0.1295,
+  "prediction_psi": 0.0057,
+  "brier_reference": 0.1111,
+  "brier_new": 0.1089,
+  "features": [
+    {
+      "feature": "ground_pass",
+      "psi": 0.0,
+      "status": "ok"
+    },
+    {
+      "feature": "low_pass",
+      "psi": 0.0,
+      "status": "ok"
+    },
+    {
+      "feature": "high_pass",
+      "psi": 0.0001,
+      "status": "ok"
+    },
+    {
+      "feature": "defensive_third",
+      "psi": 0.0001,
+      "status": "ok"
+    },
+    {
+      "feature": "midfield",
+      "psi": 0.0006,
+      "status": "ok"
+    },
+    {
+      "feature": "attacking_third",
+      "psi": 0.0017,
+      "status": "ok"
+    },
+    {
+      "feature": "backward_pass",
+      "psi": 0.0,
+      "status": "ok"
+    },
+    {
+      "feature": "square_pass",
+      "psi": 0.0,
+      "status": "ok"
+    },
+    {
+      "feature": "forward_pass",
+      "psi": 0.0,
+      "status": "ok"
+    },
+    {
+      "feature": "pass_length",
+      "psi": 0.0032,
+      "status": "ok"
+    },
+    {
+      "feature": "outplayed_players",
+      "psi": 0.0005,
+      "status": "ok"
+    },
+    {
+      "feature": "goal_diff",
+      "psi": 0.0098,
+      "status": "ok"
+    },
+    {
+      "feature": "power_index",
+      "psi": 0.2923,
+      "status": "ALERT"
+    }
+  ],
+  "retrain_recommended": true,
+  "reasons": [
+    "feature drift (PSI > 0.25)",
+    "13% of passes against opponents without power index"
+  ]
+}

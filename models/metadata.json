@@ -1,0 +1,221 @@
+{
+  "model_version": "1.0.0",
+  "trained_at": "2026-09-30T14:28:11+00:00",
+  "training_data": {
+    "tag": "euro2022",
+    "events_sha256": "c91a12fbc524b2934e66b21b957e73669f248b54c9912b18e92423eae391e6a8",
+    "n_train": 18526,
+    "n_test": 4448,
+    "split": "GroupShuffleSplit by match_id"
+  },
+  "features": [
+    "ground_pass",
+    "low_pass",
+    "high_pass",
+    "defensive_third",
+    "midfield",
+    "attacking_third",
+    "backward_pass",
+    "square_pass",
+    "forward_pass",
+    "pass_length",
+    "outplayed_players",
+    "goal_diff",
+    "power_index"
+  ],
+  "model": {
+    "base": "catboost",
+    "resampling": "none",
+    "calibration": "isotonic, cv=5",
+    "catboost_params": {
+      "learning_rate": 0.01,
+      "iterations": 800,
+      "depth": 6
+    }
+  },
+  "metrics_test": {
+    "brier": 0.1111,
+    "log_loss": 0.347,
+    "roc_auc": 0.8821,
+    "accuracy": 0.837,
+    "mcc": 0.5182,
+    "mean_predicted": 0.7763,
+    "observed_rate": 0.7716
+  },
+  "gate": {
+    "thresholds": {
+      "max_brier": 0.13,
+      "max_log_loss": 0.42,
+      "min_roc_auc": 0.84
+    },
+    "checks": {
+      "brier": true,
+      "log_loss": true,
+      "roc_auc": true
+    },
+    "passed": true
+  },
+  "risk_labels": {
+    "2": "risky",
+    "1": "medium-risk",
+    "0": "non-risky"
+  },
+  "reference_stats": {
+    "ground_pass": {
+      "type": "binary",
+      "share_1": 0.71667
+    },
+    "low_pass": {
+      "type": "binary",
+      "share_1": 0.10321
+    },
+    "high_pass": {
+      "type": "binary",
+      "share_1": 0.18013
+    },
+    "defensive_third": {
+      "type": "binary",
+      "share_1": 0.29056
+    },
+    "midfield": {
+      "type": "binary",
+      "share_1": 0.50389
+    },
+    "attacking_third": {
+      "type": "binary",
+      "share_1": 0.20555
+    },
+    "backward_pass": {
+      "type": "binary",
+      "share_1": 0.14374
+    },
+    "square_pass": {
+      "type": "binary",
+      "share_1": 0.50302
+    },
+    "forward_pass": {
+      "type": "binary",
+      "share_1": 0.35323
+    },
+    "pass_length": {
+      "type": "continuous",
+      "edges": [
+        0.0,
+        7.1823,
+        9.7324,
+        12.0615,
+        14.2352,
+        16.4985,
+        19.213,
+        22.6622,
+        27.3912,
+        35.8958,
+        84.7092
+      ],
+      "shares": [
+        0.10002,
+        0.09997,
+        0.10002,
+        0.09997,
+        0.10002,
+        0.09997,
+        0.10002,
+        0.09997,
+        0.10002,
+        0.10002
+      ]
+    },
+    "outplayed_players": {
+      "type": "continuous",
+      "edges": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        11.0
+      ],
+      "shares": [
+        0.46205,
+        0.10564,
+        0.10456,
+        0.09317,
+        0.08372,
+        0.15087
+      ]
+    },
+    "goal_diff": {
+      "type": "continuous",
+      "edges": [
+        -5.0,
+        -1.0,
+        0.0,
+        1.0,
+        2.0,
+        5.0
+      ],
+      "shares": [
+        0.08852,
+        0.13818,
+        0.49709,
+        0.15303,
+        0.12318
+      ]
+    },
+    "power_index": {
+      "type": "continuous",
+      "edges": [
+        1.0,
+        3.6,
+        5.0,
+        10.0,
+        15.0,
+        28.3333,
+        35.0,
+        56.0,
+        90.0,
+        183.3333
+      ],
+      "shares": [
+        0.19265,
+        0.07249,
+        0.11103,
+        0.07919,
+        0.1391,
+        0.08194,
+        0.05792,
+        0.15459,
+        0.11109
+      ]
+    },
+    "prediction": {
+      "type": "continuous",
+      "edges": [
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0
+      ],
+      "shares": [
+        0.00831,
+        0.0047,
+        0.0217,
+        0.08917,
+        0.0726,
+        0.04302,
+        0.05479,
+        0.07449,
+        0.20944,
+        0.42179
+      ]
+    }
+  }
+}

@@ -1,0 +1,58 @@
+# Step 15: scheduled drift monitoring (the BPMN timer start event).
+# Every Monday 06:00 UTC (and on demand): pull new data, compare with the training reference,
+# upload the report, and open a GitHub issue if retraining is recommended (BPMN XOR gateway).
+name: Drift check
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Dataset to check (wwc2023 or euro2025)"
+        default: "wwc2023"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+
+      - name: Download new data and run drift check
+        id: drift
+        env:
+          TAG: ${{ github.event.inputs.tag || 'wwc2023' }}
+        run: |
+          export PYTHONPATH=src
+          python -m xpass.ingest "$TAG"
+          set +e
+          python -m xpass.drift "$TAG"
+          echo "retrain=$([ $? -eq 1 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: reports/drift_*.md
+
+      - name: Open issue if retraining is recommended
+        if: steps.drift.outputs.retrain == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "Retraining recommended: drift detected on ${{ steps.drift.outputs.tag }}" \
+            --body-file "reports/drift_${{ steps.drift.outputs.tag }}.md" \
+            --label drift || \
+          gh issue create \
+            --title "Retraining recommended: drift detected on ${{ steps.drift.outputs.tag }}" \
+            --body-file "reports/drift_${{ steps.drift.outputs.tag }}.md"

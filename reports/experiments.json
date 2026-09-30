@@ -1,0 +1,46 @@
+[
+  {
+    "model": "logreg",
+    "resampling": "smote",
+    "brier": 0.1338,
+    "log_loss": 0.4124,
+    "roc_auc": 0.8403,
+    "accuracy": 0.8195,
+    "mcc": 0.4806,
+    "mean_predicted": 0.7033,
+    "observed_rate": 0.7716
+  },
+  {
+    "model": "logreg",
+    "resampling": "none",
+    "brier": 0.1251,
+    "log_loss": 0.3901,
+    "roc_auc": 0.8444,
+    "accuracy": 0.819,
+    "mcc": 0.4656,
+    "mean_predicted": 0.7665,
+    "observed_rate": 0.7716
+  },
+  {
+    "model": "catboost",
+    "resampling": "smote",
+    "brier": 0.113,
+    "log_loss": 0.3542,
+    "roc_auc": 0.8792,
+    "accuracy": 0.8366,
+    "mcc": 0.5097,
+    "mean_predicted": 0.7648,
+    "observed_rate": 0.7716
+  },
+  {
+    "model": "catboost",
+    "resampling": "none",
+    "brier": 0.1111,
+    "log_loss": 0.347,
+    "roc_auc": 0.8821,
+    "accuracy": 0.837,
+    "mcc": 0.5182,
+    "mean_predicted": 0.7763,
+    "observed_rate": 0.7716
+  }
+]
