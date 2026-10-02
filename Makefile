@@ -1,7 +1,7 @@
 # End-to-end pipeline. Each target is one step of the BPMN process (docs/xpass_process.bpmn).
 PY = PYTHONPATH=src python3
 
-.PHONY: all data features train test serve drift docker
+.PHONY: all data features train test serve drift docker explain
 all: data features train test
 
 data:        ## Step 1: download StatsBomb open data
@@ -24,3 +24,6 @@ drift:       ## Step 15: drift check against a new tournament (TAG=wwc2023 or eu
 
 docker:      ## Step 12: build and run the serving image
 	docker build -t xpass-api:local . && docker run --rm -p 8080:8080 xpass-api:local
+
+explain:     ## Explainability: SHAP vs built-in vs permutation importance -> reports/explainability.md
+	$(PY) scripts/explain.py

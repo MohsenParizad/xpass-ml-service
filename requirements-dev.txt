@@ -4,3 +4,6 @@ imbalanced-learn==0.14.2
 tabulate==0.10.0
 pytest==9.1.1
 httpx==0.28.1
+shap==0.51.0
+matplotlib==3.10.9
+scipy==1.17.1

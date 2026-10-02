@@ -59,6 +59,7 @@ Nicky Evrard, Laura De Neve, Elena Linari, Martina Rosucci (`reports/player_scor
 | 13 CI/CD | `.github/workflows/ci-cd.yml` | Test → build → push to Artifact Registry → deploy Cloud Run revision → smoke test | new revision + URL |
 | 14 Cloud | see below | Google Cloud Run, scales to zero, free tier | public URL |
 | 15 Drift | `make drift TAG=wwc2023` | PSI per feature, prediction drift, opponent coverage, Brier on new data; weekly via GitHub Actions, opens an issue | `reports/drift_<tag>.md` |
+| 17 Explain | `make explain` | SHAP (global, local, grouped) compared with CatBoost importance and grouped permutation importance | `reports/explainability.md`, `docs/shap_*.png` |
 | 16 Retrain | `make train VERSION=1.1.0` | New version, gate runs again, canary / rollback via Cloud Run revisions | `models/` v1.1.0 |
 
 ### Example request
@@ -71,6 +72,29 @@ curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -
 ```
 
 Coordinates follow StatsBomb (pitch 120 × 80 yards, attacking left to right).
+
+---
+
+## Explainability: what drives xPass
+
+`make explain` explains the production model with **SHAP** (TreeExplainer on the 5 CatBoost models inside
+the calibrator) and checks the result against two other methods. Full report: [`reports/explainability.md`](reports/explainability.md).
+The master's thesis used LIME and CatBoost's built-in importance; this adds SHAP and a systematic comparison.
+
+![SHAP summary](docs/shap_summary.png)
+
+| Finding | Evidence |
+|---|---|
+| Ground passes, few outplayed opponents, backward direction and medium length make a pass easy | Global SHAP, direction table |
+| **Pass length is non-monotonic**: passes under 3 yards succeed only 16 % of the time (blocked or miscontrolled), 8–30 yards are safest, long passes get harder again | SHAP dependence plot + observed success by length bin |
+| Long passes are harder when they go forward | SHAP interaction (dependence plot coloured by direction) |
+| SHAP and the built-in importance largely agree | Spearman rank correlation 0.94 |
+| **The power index is used but does not help**: grouped SHAP ranks it 6th, but shuffling it does not worsen the Brier score at all | Grouped permutation importance ≈ 0, consistent with the ablation (grouped CV Brier 0.1165 without vs 0.1167 with it) |
+| One-hot features must be judged as groups | Grouped SHAP (additivity) and grouped permutation (shuffle the group together, so no impossible passes) |
+
+Two caveats: SHAP explains the **raw CatBoost score (log-odds) before isotonic calibration**, so the contributions do not add
+up to the final calibrated xPass; and SHAP describes what the model **uses**, permutation importance on held-out data what
+actually **helps prediction**. Both views are needed.
 
 ---
 
@@ -186,7 +210,8 @@ scripts/          BPMN generator, ablation experiments
 3. **Outplayed players is an optimistic upper bound**: 360 frames show only the broadcast view and
    opponents' positions at pass start (thesis section 3.1.1).
 4. Player scores are computed on all passes (in-sample), as in the thesis.
-5. Monitoring reads new tournaments from StatsBomb. In a live product, it would read the logged
+5. **Explanations are model-specific.** The thesis model (SMOTE, random split) ranked goal difference first; the production model ranks it low. Explanations describe a model, not the game.
+6. Monitoring reads new tournaments from StatsBomb. In a live product, it would read the logged
    predictions from Cloud Logging, and performance monitoring would wait for outcomes (labels).
 
 ## Data

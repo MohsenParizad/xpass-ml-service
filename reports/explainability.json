@@ -1,0 +1,220 @@
+{
+  "n_test_passes": 4448,
+  "base_logodds": 1.9234182304737186,
+  "additivity_max_error": 1.0658141036401503e-14,
+  "shap_importance": {
+    "ground_pass": 0.5471,
+    "low_pass": 0.0252,
+    "high_pass": 0.1272,
+    "defensive_third": 0.0635,
+    "midfield": 0.027,
+    "attacking_third": 0.2892,
+    "backward_pass": 0.1175,
+    "square_pass": 0.0222,
+    "forward_pass": 0.3971,
+    "pass_length": 0.3997,
+    "outplayed_players": 0.5663,
+    "goal_diff": 0.07,
+    "power_index": 0.1373
+  },
+  "builtin_importance": {
+    "ground_pass": 20.367,
+    "low_pass": 0.637,
+    "high_pass": 3.053,
+    "defensive_third": 1.638,
+    "midfield": 0.979,
+    "attacking_third": 7.93,
+    "backward_pass": 4.106,
+    "square_pass": 1.631,
+    "forward_pass": 8.367,
+    "pass_length": 24.97,
+    "outplayed_players": 15.371,
+    "goal_diff": 4.237,
+    "power_index": 6.715
+  },
+  "grouped_shap": {
+    "pass height": 0.6839,
+    "pitch zone": 0.3246,
+    "direction": 0.4468,
+    "pass length": 0.3997,
+    "outplayed players": 0.5663,
+    "goal difference": 0.07,
+    "power index": 0.1373
+  },
+  "grouped_permutation_brier": {
+    "pass height": 0.03505,
+    "pitch zone": 0.0061,
+    "direction": 0.01032,
+    "pass length": 0.02889,
+    "outplayed players": 0.00894,
+    "goal difference": 0.00028,
+    "power index": -0.0003
+  },
+  "spearman_shap_vs_builtin": 0.94,
+  "spearman_grouped_shap_vs_permutation": 0.821,
+  "directions": [
+    {
+      "feature": "ground_pass",
+      "type": "binary",
+      "mean SHAP if 1": 0.357,
+      "mean SHAP if 0": -1.014,
+      "effect": "raises xPass"
+    },
+    {
+      "feature": "low_pass",
+      "type": "binary",
+      "mean SHAP if 1": -0.097,
+      "mean SHAP if 0": 0.017,
+      "effect": "lowers xPass"
+    },
+    {
+      "feature": "high_pass",
+      "type": "binary",
+      "mean SHAP if 1": -0.358,
+      "mean SHAP if 0": 0.072,
+      "effect": "lowers xPass"
+    },
+    {
+      "feature": "defensive_third",
+      "type": "binary",
+      "mean SHAP if 1": 0.108,
+      "mean SHAP if 0": -0.043,
+      "effect": "raises xPass"
+    },
+    {
+      "feature": "midfield",
+      "type": "binary",
+      "mean SHAP if 1": 0.026,
+      "mean SHAP if 0": -0.028,
+      "effect": "raises xPass"
+    },
+    {
+      "feature": "attacking_third",
+      "type": "binary",
+      "mean SHAP if 1": -0.683,
+      "mean SHAP if 0": 0.18,
+      "effect": "lowers xPass"
+    },
+    {
+      "feature": "backward_pass",
+      "type": "binary",
+      "mean SHAP if 1": 0.389,
+      "mean SHAP if 0": -0.069,
+      "effect": "raises xPass"
+    },
+    {
+      "feature": "square_pass",
+      "type": "binary",
+      "mean SHAP if 1": -0.006,
+      "mean SHAP if 0": 0.011,
+      "effect": "lowers xPass"
+    },
+    {
+      "feature": "forward_pass",
+      "type": "binary",
+      "mean SHAP if 1": -0.534,
+      "mean SHAP if 0": 0.318,
+      "effect": "lowers xPass"
+    },
+    {
+      "feature": "pass_length",
+      "type": "numeric",
+      "mean SHAP if 1": NaN,
+      "mean SHAP if 0": NaN,
+      "effect": "higher value raises xPass (Spearman +0.28)"
+    },
+    {
+      "feature": "outplayed_players",
+      "type": "numeric",
+      "mean SHAP if 1": NaN,
+      "mean SHAP if 0": NaN,
+      "effect": "higher value lowers xPass (Spearman -0.92)"
+    },
+    {
+      "feature": "goal_diff",
+      "type": "numeric",
+      "mean SHAP if 1": NaN,
+      "mean SHAP if 0": NaN,
+      "effect": "higher value raises xPass (Spearman +0.94)"
+    },
+    {
+      "feature": "power_index",
+      "type": "numeric",
+      "mean SHAP if 1": NaN,
+      "mean SHAP if 0": NaN,
+      "effect": "higher value raises xPass (Spearman +0.94)"
+    }
+  ],
+  "local": {
+    "A: low forward pass, midfield, vs Netherlands": {
+      "base_logodds": 1.923,
+      "raw_logodds": -2.179,
+      "uncalibrated_probability": 0.102,
+      "calibrated_xpass": 0.061,
+      "top_contributions": {
+        "pass_length": -3.193,
+        "ground_pass": -0.74,
+        "outplayed_players": 0.517,
+        "forward_pass": -0.515,
+        "low_pass": -0.114,
+        "power_index": -0.102
+      }
+    },
+    "B: ground backward pass, midfield, vs Norway": {
+      "base_logodds": 1.923,
+      "raw_logodds": 4.053,
+      "uncalibrated_probability": 0.983,
+      "calibrated_xpass": 0.989,
+      "top_contributions": {
+        "backward_pass": 0.423,
+        "forward_pass": 0.39,
+        "pass_length": 0.358,
+        "ground_pass": 0.338,
+        "goal_diff": 0.22,
+        "attacking_third": 0.198
+      }
+    }
+  },
+  "pass_length_bins": {
+    "(0.0, 3.0]": {
+      "passes": 77,
+      "observed success": 0.156,
+      "mean SHAP of pass_length": -3.297
+    },
+    "(3.0, 5.0]": {
+      "passes": 128,
+      "observed success": 0.383,
+      "mean SHAP of pass_length": -2.134
+    },
+    "(5.0, 8.0]": {
+      "passes": 365,
+      "observed success": 0.778,
+      "mean SHAP of pass_length": -0.506
+    },
+    "(8.0, 12.0]": {
+      "passes": 694,
+      "observed success": 0.849,
+      "mean SHAP of pass_length": 0.13
+    },
+    "(12.0, 20.0]": {
+      "passes": 1397,
+      "observed success": 0.871,
+      "mean SHAP of pass_length": 0.284
+    },
+    "(20.0, 30.0]": {
+      "passes": 1018,
+      "observed success": 0.831,
+      "mean SHAP of pass_length": 0.296
+    },
+    "(30.0, 45.0]": {
+      "passes": 547,
+      "observed success": 0.645,
+      "mean SHAP of pass_length": 0.131
+    },
+    "(45.0, 130.0]": {
+      "passes": 221,
+      "observed success": 0.371,
+      "mean SHAP of pass_length": -0.301
+    }
+  }
+}
