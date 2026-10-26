@@ -231,6 +231,10 @@ as `workspace.xpass.xpass`.
 | Registry | Unity Catalog `workspace.xpass.xpass` v1, alias `champion`, gate passed | local registry `xpass` v1, `champion` |
 | Player ranking | top 8 identical; places 9 and 10 swapped (scores 0.061 vs. 0.059) | – |
 
+| Unity Catalog: version 1 with gate tag and `champion` alias | Version 1: metrics from the MLflow training run |
+|---|---|
+| ![Databricks model registry](docs/databricks_model_registry.png) | ![Databricks model version](docs/databricks_model_version.png) |
+
 The features are identical; the small model differences come from the runtime (numpy/scipy/BLAS versions on
 Databricks serverless). The probability metrics agree to the 4th decimal; threshold metrics move more because
 passes near p = 0.5 can switch sides.
