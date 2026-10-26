@@ -1,0 +1,7 @@
+# Libraries for the Databricks notebooks (databricks/*.py).
+# Spark, pandas and numpy come with the Databricks runtime and are NOT reinstalled here.
+mlflow==3.17.2
+catboost==1.2.10
+scikit-learn==1.8.0
+imbalanced-learn==0.14.2
+matplotlib==3.10.9

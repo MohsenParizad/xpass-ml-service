@@ -54,7 +54,7 @@ Nicky Evrard, Laura De Neve, Elena Linari, Martina Rosucci (`reports/player_scor
 | 8 Evaluation gate | (same) | Brier ≤ 0.13, log loss ≤ 0.42, AUC ≥ 0.84, otherwise exit code 1 → CI blocks deployment | `reports/evaluation.md` |
 | 9 Batch scoring | (same) | Thesis Algorithm 1: score = mean(outcome − xPass) for players with ≥ 51 passes | `reports/player_scores.csv` |
 | 10 Serving | `make serve` | FastAPI: `/health`, `/predict`, `/players/top`; every prediction logged as JSON | http://localhost:8000/docs |
-| 11 Tests | `make test` | 25 tests: feature logic, model contract, API incl. invalid input (422) | pytest report |
+| 11 Tests | `make test` | 32 tests: feature logic, model contract, API incl. invalid input (422), explainability, Spark parity, MLflow model contract | pytest report |
 | 12 Container | `make docker` | Slim image with API + model only, non-root user | `xpass-api` image |
 | 13 CI/CD | `.github/workflows/ci-cd.yml` | Test → build → push to Artifact Registry → deploy Cloud Run revision → smoke test | new revision + URL |
 | 14 Cloud | see below | Google Cloud Run, scales to zero, free tier | public URL |
@@ -176,6 +176,50 @@ Every push to `main` now runs the tests, builds the image and deploys a new revi
 
 ---
 
+## Spark, MLflow and Databricks
+
+The same pipeline also runs on **Apache Spark** with **MLflow** experiment tracking and model registry, ready for
+**Databricks** (notebooks in `databricks/`). The pandas implementation stays the reference (the API uses it, so
+training and serving share one code path); the Spark version must reproduce it exactly.
+
+| Step | Module / notebook | What happens |
+|---|---|---|
+| Features | `xpass.spark_features` · `01_features_pyspark` | Cleaning and the 13 features as Spark transformations: goal difference via join on earlier goals, outplayed opponents via join + aggregation over the 360 frames, power index via broadcast join → Delta table `passes` |
+| Training | `xpass.mlflow_train` · `02_train_mlflow` | The 4 experiments as nested MLflow runs (params, metrics, calibration plot); best model registered with signature; alias `champion` only if the evaluation gate passes |
+| Scoring | `xpass.spark_score` · `03_score_registered` | `models:/xpass@champion` loaded with `mlflow.pyfunc.spark_udf`, every pass scored in parallel, player scores as Spark aggregation → Delta tables `pass_scores`, `player_scores` |
+| Parity | `xpass.parity` · `04_parity_check` | Spark vs. pandas: features bit-identical (22,974 rows, same order), same metrics (Brier 0.1111), same player ranking → `reports/spark_parity.md` |
+
+```bash
+pip install -r requirements-spark.txt   # PySpark + MLflow, needs Java 17+
+make data features                       # pandas reference
+make spark-all                           # Spark features -> MLflow training/registry -> Spark scoring -> parity report
+make mlflow-ui                           # http://localhost:5000
+```
+
+![MLflow: the four experiments compared](docs/mlflow_experiments.png)
+
+| Registered model: version, gate tag and `champion` alias | Calibration plot logged with every run |
+|---|---|
+| ![MLflow model registry](docs/mlflow_registry.png) | ![Calibration plot in MLflow](docs/mlflow_calibration.png) |
+
+What the parity check caught on the way (details in `reports/spark_parity.md`):
+
+- **Floating point:** Spark's built-in `atan2`/`hypot` (Java) differ from Python's in the last bit. One pass of exactly
+  135° flipped from *square* to *backward*. Angle and length now use Python's `math` in a vectorised pandas UDF.
+- **Row order:** the split is by match, but the CV folds inside `CalibratedClassifierCV` depend on row order.
+  A reordered Spark table gave Brier 0.1112 instead of 0.1111. The Spark output now keeps the source order
+  (`source_row` column for Delta tables).
+- **Wrong probability column:** with the sklearn flavour and `predict_proba`, `spark_udf(result_type="double")`
+  silently returned P(failed). The registered model is now a small pyfunc wrapper that returns P(completed);
+  `tests/test_mlflow_model.py` guards this.
+
+**On Databricks (Free Edition):** Workspace → Create → Git folder with this repository, then run
+`databricks/00_setup_ingest` to `04_parity_check` in order (serverless compute). Data goes to the Unity Catalog
+volume `workspace.xpass.raw`, tables to the schema `workspace.xpass`, and the model is registered in Unity Catalog
+as `workspace.xpass.xpass`. Locally everything above was run with Spark 4.2 (local mode) and MLflow 3.17.
+
+---
+
 ## Run locally
 
 ```bash
@@ -189,14 +233,16 @@ make drift TAG=wwc2023
 ## Repository layout
 
 ```
-src/xpass/        config, ingest, features (shared with API), train, api, drift
-tests/            feature, model-contract and API tests
+src/xpass/        config, ingest, features (shared with API), train, api, drift,
+                  spark_features, mlflow_train, spark_score, parity (Spark + MLflow version)
+databricks/       notebooks for Databricks (source format): ingest, features, training, scoring, parity
+tests/            feature, model-contract, API, Spark-parity and MLflow-model tests
 models/           versioned model artifacts + metadata.json (drift reference inside)
 reports/          evaluation, experiments, player scores, drift reports
 data/reference/   power index lookup (versioned reference data)
 docs/             BPMN process model, deployment guide
 scripts/          BPMN generator, ablation experiments
-.github/workflows CI/CD and weekly drift check
+.github/workflows CI/CD (incl. Spark/MLflow tests) and weekly drift check
 ```
 
 ## Known limitations and next steps

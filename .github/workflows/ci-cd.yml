@@ -30,8 +30,25 @@ jobs:
       - name: Build image (smoke test)
         run: docker build -t xpass-api:ci .
 
+  spark-mlflow:
+    # PySpark feature pipeline + MLflow model contract (Java 17 is preinstalled on ubuntu-latest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - run: pip install -r requirements-spark.txt
+      - name: Spark features equal pandas features; pyfunc returns P(completed)
+        run: python -m pytest -q tests/test_spark_features.py tests/test_mlflow_model.py
+
   deploy:
-    needs: test
+    needs: [test, spark-mlflow]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:

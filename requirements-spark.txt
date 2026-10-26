@@ -1,0 +1,4 @@
+# Local Spark + MLflow pipeline and its tests (needs Java 17+): make spark-all
+-r requirements-dev.txt
+pyspark==4.2.0
+mlflow==3.17.2

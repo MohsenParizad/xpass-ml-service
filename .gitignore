@@ -6,3 +6,8 @@ data/raw/
 data/processed/
 catboost_info/
 docs/FIELD_GUIDE.*
+mlflow.db
+mlruns/
+spark-warehouse/
+metastore_db/
+derby.log

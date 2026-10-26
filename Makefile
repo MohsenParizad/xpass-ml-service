@@ -1,7 +1,7 @@
 # End-to-end pipeline. Each target is one step of the BPMN process (docs/xpass_process.bpmn).
 PY = PYTHONPATH=src python3
 
-.PHONY: all data features train test serve drift docker explain
+.PHONY: all data features train test serve drift docker explain spark-features mlflow-train spark-score parity spark-all mlflow-ui
 all: data features train test
 
 data:        ## Step 1: download StatsBomb open data
@@ -27,3 +27,21 @@ docker:      ## Step 12: build and run the serving image
 
 explain:     ## Explainability: SHAP vs built-in vs permutation importance -> reports/explainability.md
 	$(PY) scripts/explain.py
+
+# ---------- PySpark + MLflow (same pipeline, Databricks-ready; pip install -r requirements-spark.txt, Java 17+)
+spark-features:  ## Steps 2-3 in PySpark -> data/processed/euro2022_passes_spark.parquet
+	$(PY) -m xpass.spark_features euro2022
+
+mlflow-train:    ## Steps 4-8 tracked in MLflow; best model registered as "xpass", alias champion if gate passes
+	$(PY) -m xpass.mlflow_train --features data/processed/euro2022_passes_spark.parquet
+
+spark-score:     ## Step 9 with the registered model as Spark UDF -> reports/player_scores_spark.csv
+	$(PY) -m xpass.spark_score
+
+parity:          ## Spark/MLflow results vs. pandas reference -> reports/spark_parity.md
+	$(PY) -m xpass.parity
+
+spark-all: spark-features mlflow-train spark-score parity
+
+mlflow-ui:       ## MLflow UI on http://localhost:5000
+	mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5000
