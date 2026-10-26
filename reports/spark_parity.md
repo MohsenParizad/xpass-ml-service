@@ -33,3 +33,11 @@ Selected variant and test metrics are logged to MLflow; they equal
 - The registered model is a pyfunc wrapper that returns P(completed). With the plain sklearn
   flavour and `predict_proba`, `spark_udf(result_type='double')` silently takes column 0,
   i.e. P(failed); the player-score comparison caught this.
+
+## Databricks Free Edition (serverless, 26 Oct 2026)
+
+All five notebooks in `databricks/` ran successfully. Same raw data (SHA-256 `c91a12fb…`); feature table
+bit-identical to the pandas reference (0 mismatching cells); best model CatBoost without resampling with
+Brier 0.1111, log loss 0.3472, ROC AUC 0.8820; registered as `workspace.xpass.xpass` v1 with alias `champion`;
+top 8 players identical to the local run, places 9 and 10 swapped. Small metric differences come from the
+runtime libraries, not from the data or the features.

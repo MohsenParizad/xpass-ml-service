@@ -216,7 +216,24 @@ What the parity check caught on the way (details in `reports/spark_parity.md`):
 **On Databricks (Free Edition):** Workspace → Create → Git folder with this repository, then run
 `databricks/00_setup_ingest` to `04_parity_check` in order (serverless compute). Data goes to the Unity Catalog
 volume `workspace.xpass.raw`, tables to the schema `workspace.xpass`, and the model is registered in Unity Catalog
-as `workspace.xpass.xpass`. Locally everything above was run with Spark 4.2 (local mode) and MLflow 3.17.
+as `workspace.xpass.xpass`.
+
+**Results on Databricks Free Edition** (serverless, 26 Oct 2026) compared with the local run (Spark 4.2 local mode, MLflow 3.17):
+
+| | Databricks | Local |
+|---|---|---|
+| Raw data | 31 matches, 29,348 events, SHA-256 `c91a12fb…` | identical |
+| Feature table (Delta) | 22,974 passes, 17,728 completed | identical |
+| Parity check vs. pandas | bit-identical, same row order, 0 mismatching cells | bit-identical |
+| Best model | CatBoost, no resampling | CatBoost, no resampling |
+| Brier / log loss / ROC AUC | **0.1111** / 0.3472 / 0.8820 | **0.1111** / 0.3470 / 0.8821 |
+| Accuracy / MCC (threshold 0.5) | 0.839 / 0.530 | 0.837 / 0.518 |
+| Registry | Unity Catalog `workspace.xpass.xpass` v1, alias `champion`, gate passed | local registry `xpass` v1, `champion` |
+| Player ranking | top 8 identical; places 9 and 10 swapped (scores 0.061 vs. 0.059) | – |
+
+The features are identical; the small model differences come from the runtime (numpy/scipy/BLAS versions on
+Databricks serverless). The probability metrics agree to the 4th decimal; threshold metrics move more because
+passes near p = 0.5 can switch sides.
 
 ---
 
